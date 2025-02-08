@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Mood App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .emoji-picker {
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+        button {
+            font-size: 40px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+        #song-suggestions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f4f4f4;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Choose Your Mood</h1>
+    <div class="emoji-picker">
+        <button id="happy">😀</button>
+        <button id="sad">😢</button>
+        <button id="cool">😎</button>
+        <button id="angry">😠</button>
+        <button id="relaxed">😌</button>
+        <button id="excited">🥳</button>
+    </div>
+
+    <div id="song-suggestions">
+        <h3>Song Suggestions:</h3>
+        <ul id="songs-list"></ul>
+    </div>
+
+    <script>
+        // Add event listeners for emoji buttons
+        const emojiButtons = document.querySelectorAll('.emoji-picker button');
+        emojiButtons.forEach(button => {
+            button.addEventListener('click', async function() {
+                const emoji = button.innerText;
+                
+                // Make the API call to get songs based on selected emoji
+                const response = await fetch('http://127.0.0.1:5000/get_songs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ emoji: emoji })
+                });
+                
+                const songs = await response.json();
+                
+                // Display the song suggestions
+                const songList = document.getElementById('songs-list');
+                songList.innerHTML = '';  // Clear previous suggestions
+                
+                if (songs.length === 0) {
+                    songList.innerHTML = '<li>No songs found for this mood.</li>';
+                } else {
+                    songs.forEach(song => {
+                        const li = document.createElement('li');
+                        li.textContent = song.name;  // Assuming 'name' is the song title
+                        songList.appendChild(li);
+                    });
+                }
+                
+                // Show the suggestions div
+                document.getElementById('song-suggestions').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
